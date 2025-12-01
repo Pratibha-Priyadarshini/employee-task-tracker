@@ -1,0 +1,29 @@
+{
+  "name": "employee-task-tracker",
+  "version": "1.0.0",
+  "description": "Full-stack Employee Task Management System - ProU Technology Internship Assignment",
+  "scripts": {
+    "setup": "cd backend && npm install && npm run init-db && cd ../frontend && npm install",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "init-db": "cd backend && npm run init-db"
+  },
+  "keywords": [
+    "employee-management",
+    "task-tracker",
+    "fullstack",
+    "react",
+    "nodejs",
+    "express",
+    "sqlite"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/employee-task-tracker.git"
+  }
+}

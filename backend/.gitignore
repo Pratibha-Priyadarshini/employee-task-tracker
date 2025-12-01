@@ -1,0 +1,6 @@
+# Backend .gitignore
+node_modules/
+.env
+database.db
+*.log
+npm-debug.log*
