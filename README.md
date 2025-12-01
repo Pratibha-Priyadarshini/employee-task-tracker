@@ -8,6 +8,7 @@ A full-stack web application for managing employees and their tasks within an or
 
 ## 🚀 Features
 
+### Core Features
 - **Dashboard Overview**: View real-time statistics including total tasks, completion rates, and employee workload
 - **Employee Management**: Full CRUD operations for employee records
 - **Task Management**: Create, update, and track tasks with status, priority, and due dates
@@ -15,6 +16,14 @@ A full-stack web application for managing employees and their tasks within an or
 - **Responsive Design**: Mobile-friendly interface that works on all devices
 - **REST API**: Well-structured API endpoints with proper error handling
 - **Data Persistence**: SQLite database with proper relationships and foreign keys
+
+### Bonus Features (Multi-Tenant Architecture)
+- **User Authentication**: JWT-based authentication with httpOnly cookies
+- **Role-Based Access Control**: Admin and User roles with distinct permissions
+- **Multi-Tenant Support**: Each admin manages their own employees and tasks
+- **Admin Codes**: Unique codes for user registration under specific admins
+- **Scoped Data**: Admins see only their data; users see only their assigned tasks
+- **User Dashboard**: Personalized dashboard for regular users showing their task stats
 
 ## 🏗️ Architecture
 
@@ -50,6 +59,21 @@ employee-task-tracker/
 
 ## 📋 Database Schema
 
+### Users Table (Multi-Tenant)
+```sql
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  role TEXT NOT NULL CHECK(role IN ('admin', 'user')),
+  admin_code TEXT UNIQUE,
+  admin_id INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE SET NULL
+);
+```
+
 ### Employees Table
 ```sql
 CREATE TABLE employees (
@@ -58,7 +82,11 @@ CREATE TABLE employees (
   email TEXT UNIQUE NOT NULL,
   department TEXT NOT NULL,
   position TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  user_id INTEGER,
+  admin_id INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
 );
 ```
 
@@ -71,10 +99,12 @@ CREATE TABLE tasks (
   status TEXT NOT NULL CHECK(status IN ('pending', 'in-progress', 'completed')),
   priority TEXT NOT NULL CHECK(priority IN ('low', 'medium', 'high')),
   employee_id INTEGER NOT NULL,
+  admin_id INTEGER NOT NULL,
   due_date DATE,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+  FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+  FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
 );
 ```
 
@@ -90,6 +120,9 @@ CREATE TABLE tasks (
 - **Node.js**: Runtime environment
 - **Express 4.x**: Web framework
 - **SQLite3**: Database
+- **bcryptjs**: Password hashing
+- **jsonwebtoken**: JWT authentication
+- **cookie-parser**: Cookie handling
 - **CORS**: Cross-origin resource sharing
 - **dotenv**: Environment variable management
 
@@ -114,10 +147,10 @@ cd backend
 # Install dependencies
 npm install
 
-# Initialize database with sample data
-npm run init-db
+# Initialize database with multi-tenant schema (optional, runs on startup)
+npm run init-mt
 
-# Start the server
+# Start the server (auto-initializes DB if missing)
 npm start
 
 # For development with auto-reload
@@ -125,6 +158,8 @@ npm run dev
 ```
 
 The backend server will start on **http://localhost:5000**
+
+**Note**: The database initializes automatically on server start with multi-tenant schema and two sample admin accounts.
 
 ### 3. Frontend Setup
 
@@ -146,6 +181,17 @@ The frontend will start on **http://localhost:3000**
 ### 4. Access the Application
 
 Open your browser and go to: **http://localhost:3000**
+
+**Sample Login Credentials** (created on first startup):
+- **Admin**: `admin1` / `password123` (Admin Code displayed in server logs)
+- **Admin**: `admin2` / `password123` (Admin Code displayed in server logs)
+
+**To test multi-tenant features**:
+1. Register as Admin → note your admin code
+2. Register as User → provide the admin code
+3. Admin adds the user as an employee
+4. Admin creates tasks for that employee
+5. User logs in and sees only their tasks
 
 ## 🌐 API Documentation
 
@@ -259,11 +305,26 @@ The dashboard displays:
 PORT=5000
 DB_PATH=./database.db
 NODE_ENV=development
+JWT_SECRET=changeme-dev-secret-please-replace
+CORS_ORIGINS=http://localhost:3000,https://employee-task-tracker-psi.vercel.app
 ```
 
 ### Frontend (.env)
 ```env
 VITE_API_URL=http://localhost:5000/api
+```
+
+**Production Environment (Render)**:
+```env
+NODE_ENV=production
+DB_PATH=./database.db
+JWT_SECRET=<strong-random-secret>
+CORS_ORIGINS=https://employee-task-tracker-psi.vercel.app
+```
+
+**Production Environment (Vercel)**:
+```env
+VITE_API_URL=https://<your-render-service>.onrender.com/api
 ```
 
 ## 🧪 Testing the Application
@@ -294,15 +355,17 @@ VITE_API_URL=http://localhost:5000/api
 
 ## 📝 Sample Data
 
-The application comes with pre-populated sample data:
-- **5 Employees** across different departments
-- **10 Tasks** with various statuses and priorities
+The application initializes with:
+- **2 Admin accounts** with unique admin codes (printed in server logs on first start)
+- **No employees or tasks** initially (you create them after registration)
 
 To reset the database:
 ```bash
 cd backend
 rm database.db
-npm run init-db
+npm run init-mt
+# or just restart the server (auto-initializes)
+node server.js
 ```
 
 ## 🛠️ Development
@@ -328,19 +391,66 @@ npm run build
 # Outputs to frontend/dist
 ```
 
+## 🚀 Deployment (Render + Vercel)
+
+### Backend (Render)
+
+1. **Create Web Service** from your GitHub repository
+   - Root directory: `backend/`
+   - Build command: `npm install`
+   - Start command: `node server.js`
+
+2. **Environment Variables**:
+   ```
+   NODE_ENV=production
+   DB_PATH=./database.db
+   JWT_SECRET=<generate-strong-random-secret>
+   CORS_ORIGINS=https://<your-vercel-app>.vercel.app
+   ```
+
+3. **Database**: SQLite runs on ephemeral filesystem (data resets on redeploy). For persistence, consider upgrading to a managed DB (PostgreSQL/MySQL) or adding a paid Render Disk.
+
+4. **Deploy**: Render will auto-deploy. Check logs for admin codes.
+
+### Frontend (Vercel)
+
+1. **Import Project** from GitHub
+   - Framework preset: Vite
+   - Root directory: `frontend/`
+   - Build command: `npm run build`
+   - Output directory: `dist`
+
+2. **Environment Variables**:
+   ```
+   VITE_API_URL=https://<your-render-service>.onrender.com/api
+   ```
+
+3. **Deploy**: Vercel will auto-build and deploy.
+
+### Post-Deployment
+
+- Visit your Vercel URL
+- Check Render logs for admin codes
+- Test registration, login, admin code copy, employee/task CRUD
+- Verify CORS by checking browser console (no CORS errors)
+
+**Live Demo**: `https://employee-task-tracker-psi.vercel.app`
+
+---
+
 ## 🚧 Known Limitations & Assumptions
 
-1. **Authentication**: No user authentication implemented (can be added as bonus feature)
-2. **Database**: Using SQLite for simplicity (can be replaced with PostgreSQL/MySQL)
-3. **File Uploads**: No file attachment support for tasks
-4. **Notifications**: No email/push notifications for task updates
-5. **Pagination**: All records loaded at once (suitable for small-medium datasets)
-6. **Time Zones**: All dates stored in UTC
+1. **Database Persistence**: SQLite on ephemeral filesystem (data resets on Render redeploy without paid disk)
+2. **File Uploads**: No file attachment support for tasks
+3. **Notifications**: No email/push notifications for task updates
+4. **Pagination**: All records loaded at once (suitable for small-medium datasets)
+5. **Time Zones**: All dates stored in UTC
 
 ## 🎯 Future Enhancements
 
-- [ ] User authentication and authorization
-- [ ] Role-based access control (Admin vs Regular User)
+- [x] User authentication and authorization (JWT-based)
+- [x] Role-based access control (Admin vs Regular User)
+- [x] Multi-tenant architecture with admin codes
 - [ ] Task comments and activity history
 - [ ] File attachments for tasks
 - [ ] Email notifications
@@ -349,6 +459,7 @@ npm run build
 - [ ] Data export (CSV/PDF)
 - [ ] Dark mode
 - [ ] Task analytics and reporting
+- [ ] Persistent database (PostgreSQL/MySQL for production)
 
 ## 🤝 Contributing
 
