@@ -545,28 +545,13 @@ npm run build
 
 ---
 
-## 🚧 Known Limitations & Assumptions
-
-1. **Database Persistence**: SQLite on ephemeral filesystem (data resets on Render redeploy without paid disk)
-2. **File Uploads**: No file attachment support for tasks
-3. **Notifications**: No email/push notifications for task updates
-4. **Pagination**: All records loaded at once (suitable for small-medium datasets)
-5. **Time Zones**: All dates stored in UTC
-
 ## 🎯 Future Enhancements
 
-- [x] User authentication and authorization (JWT-based)
-- [x] Role-based access control (Admin vs Regular User)
-- [x] Multi-tenant architecture with admin codes
-- [ ] Task comments and activity history
 - [ ] File attachments for tasks
 - [ ] Email notifications
-- [ ] Task search functionality
-- [ ] Pagination for large datasets
 - [ ] Data export (CSV/PDF)
 - [ ] Dark mode
 - [ ] Task analytics and reporting
-- [ ] Persistent database (PostgreSQL/MySQL for production)
 
 ## 🤝 Contributing
 
@@ -578,7 +563,7 @@ This project is created as part of the ProU Technology internship assignment.
 
 ## 👨‍💻 Author
 
-**Internship Candidate** - Track 3: Fullstack Developer
+**Pratibha Priyadarshini** - Track 3: Fullstack Developer
 
 ---
 
