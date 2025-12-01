@@ -16,7 +16,7 @@ const initDbMultiTenant = require('./initDbMultiTenant');
 const normalizeOrigin = (o) => (o || '').trim().replace(/\/+$/, '');
 const allowedOrigins = (process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',')
-  : ['http://localhost:3000']
+  : ['http://localhost:5173', 'http://localhost:3000']
 ).map(normalizeOrigin);
 
 app.use(cors({
