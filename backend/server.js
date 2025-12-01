@@ -12,15 +12,19 @@ const PORT = process.env.PORT || 5000;
 const initDbMultiTenant = require('./initDbMultiTenant');
 
 // Middleware
-const allowedOrigins = process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(',').map(o => o.trim())
-  : ['http://localhost:3000'];
+// CORS origins: normalize by trimming trailing slashes for robust matching
+const normalizeOrigin = (o) => (o || '').trim().replace(/\/+$/, '');
+const allowedOrigins = (process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',')
+  : ['http://localhost:3000']
+).map(normalizeOrigin);
 
 app.use(cors({
   origin: function (origin, callback) {
     // allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    const normalized = normalizeOrigin(origin);
+    if (allowedOrigins.includes(normalized)) return callback(null, true);
     return callback(new Error('CORS not allowed for this origin: ' + origin), false);
   },
   credentials: true
