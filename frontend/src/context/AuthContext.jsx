@@ -1,5 +1,9 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 
+// Build API base URL (aligns with services/api.js)
+const BASE = (import.meta.env.VITE_API_URL || window.location.origin).replace(/\/+$/,'');
+const API_URL = `${BASE}/api`;
+
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -26,7 +30,7 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/auth/me', {
+      const response = await fetch(`${API_URL}/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         },
@@ -48,7 +52,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (username, password) => {
-    const response = await fetch('http://localhost:5000/api/auth/login', {
+    const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -68,7 +72,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (username, email, password, role = 'user', adminCode = '') => {
-    const response = await fetch('http://localhost:5000/api/auth/register', {
+    const response = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -89,7 +93,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch('http://localhost:5000/api/auth/logout', {
+      await fetch(`${API_URL}/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       });
