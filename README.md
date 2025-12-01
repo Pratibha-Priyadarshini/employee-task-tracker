@@ -200,36 +200,133 @@ Open your browser and go to: **http://localhost:3000**
 http://localhost:5000/api
 ```
 
+### Authentication Endpoints
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/auth/register` | Register new user (admin or user) | No |
+| POST | `/auth/login` | Login and receive JWT token | No |
+| POST | `/auth/logout` | Logout and clear token | Yes |
+| GET | `/auth/me` | Get current user info | Yes |
+
+#### Register User Example
+```json
+POST /api/auth/register
+{
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "password123",
+  "role": "user",
+  "adminCode": "ABC12345"
+}
+
+Response (user):
+{
+  "id": 3,
+  "username": "johndoe",
+  "email": "john@example.com",
+  "role": "user",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### Register Admin Example
+```json
+POST /api/auth/register
+{
+  "username": "admin",
+  "email": "admin@example.com",
+  "password": "password123",
+  "role": "admin"
+}
+
+Response (admin):
+{
+  "id": 1,
+  "username": "admin",
+  "email": "admin@example.com",
+  "role": "admin",
+  "adminCode": "A1B2C3D4",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### Login Example
+```json
+POST /api/auth/login
+{
+  "username": "johndoe",
+  "password": "password123"
+}
+
+Response:
+{
+  "id": 3,
+  "username": "johndoe",
+  "email": "john@example.com",
+  "role": "user",
+  "admin_id": 1,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### Get Current User
+```json
+GET /api/auth/me
+Authorization: Bearer <token>
+
+Response:
+{
+  "id": 3,
+  "username": "johndoe",
+  "email": "john@example.com",
+  "role": "user",
+  "admin_code": null,
+  "admin_id": 1,
+  "created_at": "2025-12-02T10:00:00.000Z",
+  "employee": {
+    "id": 5,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "department": "Engineering",
+    "position": "Developer"
+  }
+}
+```
+
 ### Employees Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/employees` | Get all employees |
-| GET | `/employees/:id` | Get single employee by ID |
-| POST | `/employees` | Create new employee |
-| PUT | `/employees/:id` | Update employee |
-| DELETE | `/employees/:id` | Delete employee |
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/employees` | Get all employees (admin: their employees; user: self) | Yes |
+| GET | `/employees/:id` | Get single employee by ID | Yes |
+| POST | `/employees` | Create new employee (admin only) | Yes (Admin) |
+| PUT | `/employees/:id` | Update employee (admin only) | Yes (Admin) |
+| DELETE | `/employees/:id` | Delete employee (admin only) | Yes (Admin) |
 
 #### Create Employee Example
 ```json
 POST /api/employees
+Authorization: Bearer <admin-token>
 {
-  "name": "John Doe",
   "email": "john@company.com",
   "department": "Engineering",
   "position": "Developer"
 }
+
+Note: User must be registered with your admin code before adding as employee
 ```
 
 ### Tasks Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/tasks` | Get all tasks (supports filters) |
-| GET | `/tasks/:id` | Get single task by ID |
-| POST | `/tasks` | Create new task |
-| PUT | `/tasks/:id` | Update task |
-| DELETE | `/tasks/:id` | Delete task |
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/tasks` | Get all tasks (admin: their tasks; user: their own) | Yes |
+| GET | `/tasks/:id` | Get single task by ID | Yes |
+| POST | `/tasks` | Create new task (admin only) | Yes (Admin) |
+| PUT | `/tasks/:id` | Update task (admin only) | Yes (Admin) |
+| PATCH | `/tasks/:id/status` | Update task status (users can update their own) | Yes |
+| DELETE | `/tasks/:id` | Delete task (admin only) | Yes (Admin) |
 
 #### Query Parameters for GET /tasks
 - `status`: Filter by status (pending, in-progress, completed)
@@ -239,6 +336,7 @@ POST /api/employees
 #### Create Task Example
 ```json
 POST /api/tasks
+Authorization: Bearer <admin-token>
 {
   "title": "Implement Login Feature",
   "description": "Add JWT authentication",
@@ -249,11 +347,20 @@ POST /api/tasks
 }
 ```
 
+#### Update Task Status (User or Admin)
+```json
+PATCH /api/tasks/5/status
+Authorization: Bearer <token>
+{
+  "status": "in-progress"
+}
+```
+
 ### Dashboard Endpoint
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/dashboard` | Get dashboard statistics |
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/dashboard` | Get dashboard statistics (role-specific) | Yes |
 
 #### Dashboard Response Example
 ```json
