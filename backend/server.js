@@ -9,6 +9,7 @@ const { authenticate, requireAdmin, JWT_SECRET } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const initDbMultiTenant = require('./initDbMultiTenant');
 
 // Middleware
 const allowedOrigins = process.env.CORS_ORIGINS
@@ -718,8 +719,15 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📊 API available at http://localhost:${PORT}/api`);
-});
+// Initialize DB (safe to run every start) then start server
+(async () => {
+  try {
+    await initDbMultiTenant();
+  } catch (e) {
+    console.error('DB init failed:', e.message);
+  }
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📊 API available at http://localhost:${PORT}/api`);
+  });
+})();
