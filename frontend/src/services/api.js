@@ -1,4 +1,8 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Build API base URL reliably for production and local
+// If VITE_API_URL is set to a host (e.g., https://service.onrender.com), append "/api"
+// Otherwise, fall back to current origin (supports Vercel preview) and append "/api"
+const BASE = (import.meta.env.VITE_API_URL || window.location.origin).replace(/\/+$/,'');
+const API_URL = `${BASE}/api`;
 
 // Helper function for API calls with authentication
 const fetchAPI = async (endpoint, options = {}) => {
