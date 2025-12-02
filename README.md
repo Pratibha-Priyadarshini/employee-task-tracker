@@ -398,7 +398,7 @@ The dashboard displays:
 - Completion rate percentage
 - High priority task count
 - Tasks breakdown by employee
-<img width="1856" height="1479" alt="image" src="https://github.com/user-attachments/assets/7b417e05-b4d4-4e56-8573-85d28deda92f" />
+<img width="932" height="431" alt="image" src="https://github.com/user-attachments/assets/71efc3b6-f02c-46f7-a3be-a1f49dee45c3" />
 
 ### Task Management (Admin)
 - View all tasks in a table format
@@ -427,7 +427,7 @@ The dashboard displays:
 - View all tasks in a table format
 - Filter by status and priority
 - Update status of existing tasks
-<img width="1843" height="1073" alt="image" src="https://github.com/user-attachments/assets/b2817f65-88da-450b-a75c-fbe49ef7b6ed" />
+<img width="918" height="416" alt="image" src="https://github.com/user-attachments/assets/991e8086-d5d0-4e4e-947f-79ece0d3ed19" />
 
 ## 🔒 Environment Variables
 
