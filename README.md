@@ -384,26 +384,50 @@ Authorization: Bearer <token>
 
 ## 🎨 Screenshots
 
-### Dashboard View
+### Login and Register
+- User authentication and role-based access (Admin/User)
+- Admin can add/update/delete tasks and employees
+- Regular users can view their assigned tasks only 
+<img width="1859" height="1079" alt="image" src="https://github.com/user-attachments/assets/e71dd159-c357-4833-82e3-520efabd9f7c" />
+<img width="1858" height="1385" alt="image" src="https://github.com/user-attachments/assets/106daeab-6bcb-431b-83d6-f5abde5ba81e" />
+
+### Dashboard View (Admin)
 The dashboard displays:
 - Total tasks, completed tasks, in-progress, and pending
 - Total employees
 - Completion rate percentage
 - High priority task count
 - Tasks breakdown by employee
+<img width="1856" height="1479" alt="image" src="https://github.com/user-attachments/assets/7b417e05-b4d4-4e56-8573-85d28deda92f" />
 
-### Task Management
+### Task Management (Admin)
 - View all tasks in a table format
 - Filter by status, employee, and priority
 - Add new tasks with full details
 - Edit existing tasks
 - Delete tasks with confirmation
+<img width="1847" height="1344" alt="image" src="https://github.com/user-attachments/assets/3eddf864-904b-4d67-a3d6-84b94c7367c1" />
+<img width="1844" height="842" alt="image" src="https://github.com/user-attachments/assets/61bc88ab-2fae-4ac6-b29a-58f12d9a738d" />
 
-### Employee Management
+### Employee Management (Admin)
 - View all employees with their details
 - Add new employees
 - Edit employee information
 - Delete employees (cascades to their tasks)
+<img width="1855" height="1045" alt="image" src="https://github.com/user-attachments/assets/d1fae015-63a6-4415-bf10-ab23eebe45aa" />
+<img width="1848" height="853" alt="image" src="https://github.com/user-attachments/assets/f2beb464-2d2d-4844-8782-9e43b61cea96" />
+
+### Dashboard View (User)
+- Total tasks, completed tasks, in-progress, and pending
+- Completion rate percentage
+- High priority task count
+<img width="1841" height="1535" alt="image" src="https://github.com/user-attachments/assets/f650a6f5-cbd0-4012-bfdd-cf02d7fcb786" />
+
+### Task Management (User)
+- View all tasks in a table format
+- Filter by status and priority
+- Update status of existing tasks
+<img width="1843" height="1073" alt="image" src="https://github.com/user-attachments/assets/b2817f65-88da-450b-a75c-fbe49ef7b6ed" />
 
 ## 🔒 Environment Variables
 
